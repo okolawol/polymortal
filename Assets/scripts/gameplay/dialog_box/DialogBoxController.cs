@@ -12,12 +12,14 @@ public class DialogBoxController : MonoBehaviour
     private int currentSentenceIndex = 0;
     private bool isSpeaking = false;
     private Animator animator;
+    private Image arrowImage;
 
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         textDisplay = Helpers.FindComponentInChildWithTag<Text>(this.gameObject,DialogGlobals.DIALOG_BOX_TEXT_TAG);
+        arrowImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject,DialogGlobals.DIALOG_BOX_ARROW);
         initialize(new string[] {
             "What is your name?",
             "Who are you?",
@@ -49,6 +51,7 @@ public class DialogBoxController : MonoBehaviour
     {
         if (currentSentenceIndex < dialogString.Length)
         {
+            arrowImage.enabled = false;
             isSpeaking = true;
             textDisplayString = "";
             textDisplay.text = textDisplayString;
@@ -64,11 +67,17 @@ public class DialogBoxController : MonoBehaviour
             }
             currentSentenceIndex++;
             isSpeaking = false;
+            arrowImage.enabled = true;
         } else
         {
             //dialog over
             animator.SetBool("go_out",true);
         }
+    }
+
+    public void destroyObj()
+    {
+        Destroy(gameObject);
     }
 
     private IEnumerator speakAll()
