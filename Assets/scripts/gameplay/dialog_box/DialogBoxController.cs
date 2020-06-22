@@ -13,18 +13,23 @@ public class DialogBoxController : MonoBehaviour
     private bool isSpeaking = false;
     private Animator animator;
     private Image arrowImage;
+    private Image portraitImage;
+    private float[] textTimeOptions = new float[] { 0.05f, 0.01f };
+    private float textTime;
 
     // Start is called before the first frame update
     void Start()
     {
+        textTime = textTimeOptions[0];
         animator = GetComponent<Animator>();
         textDisplay = Helpers.FindComponentInChildWithTag<Text>(this.gameObject,DialogGlobals.DIALOG_BOX_TEXT_TAG);
-        arrowImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject,DialogGlobals.DIALOG_BOX_ARROW);
+        arrowImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject,DialogGlobals.DIALOG_BOX_ARROW_TAG);
+        portraitImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject,DialogGlobals.DIALOG_BOX_PORTRAIT_TAG);
         initialize(new string[] {
-            "What is your name?",
+            "What is your name? and who is there?",
             "Who are you?",
             "Why are you here?"
-        });
+        },"xenon");
         speaking();
     }
 
@@ -34,16 +39,24 @@ public class DialogBoxController : MonoBehaviour
         
     }
 
-    public void initialize(string[] dialogString)
+    public void initialize(string[] dialogString,string characterName)
     {
         this.dialogString = dialogString;
+        portraitImage.sprite = Resources.Load<Sprite>(DialogGlobals.CHARACTER_PORTRAIT_PATH + characterName);
+        portraitImage.preserveAspect = true;
     }
 
+    //Called from editor click event
     public void speaking()
     {
         if (!isSpeaking)
         {
+            textTime = textTimeOptions[0];
             StartCoroutine(speak());
+        } else
+        {
+            //when clicked and currently speaking increase the text speed
+            textTime = textTimeOptions[1];
         }
     }
 
@@ -63,7 +76,7 @@ public class DialogBoxController : MonoBehaviour
                 textDisplayString = textDisplayString + character;
                 textDisplay.text = textDisplayString;
                 //delay between each character
-                yield return new WaitForSeconds(0.05f);
+                yield return new WaitForSeconds(textTime);
             }
             currentSentenceIndex++;
             isSpeaking = false;
