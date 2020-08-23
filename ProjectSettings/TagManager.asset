@@ -7,6 +7,7 @@ TagManager:
   - DIALOG_BOX_TEXT
   - DIALOG_BOX_ARROW
   - DIALOG_BOX_PORTRAIT
+  - UI_CANVAS
   layers:
   - Default
   - TransparentFX

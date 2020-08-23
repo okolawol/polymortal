@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 public class DialogBoxController : MonoBehaviour
 {
@@ -16,21 +17,21 @@ public class DialogBoxController : MonoBehaviour
     private Image portraitImage;
     private float[] textTimeOptions = new float[] { 0.05f, 0.01f };
     private float textTime;
+    private Action dialogComplete;
+
+    private void Awake()
+    {
+        textTime = textTimeOptions[0];
+        animator = GetComponent<Animator>();
+        textDisplay = Helpers.FindComponentInChildWithTag<Text>(this.gameObject, DialogGlobals.DIALOG_BOX_TEXT_TAG);
+        arrowImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject, DialogGlobals.DIALOG_BOX_ARROW_TAG);
+        portraitImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject, DialogGlobals.DIALOG_BOX_PORTRAIT_TAG);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        textTime = textTimeOptions[0];
-        animator = GetComponent<Animator>();
-        textDisplay = Helpers.FindComponentInChildWithTag<Text>(this.gameObject,DialogGlobals.DIALOG_BOX_TEXT_TAG);
-        arrowImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject,DialogGlobals.DIALOG_BOX_ARROW_TAG);
-        portraitImage = Helpers.FindComponentInChildWithTag<Image>(this.gameObject,DialogGlobals.DIALOG_BOX_PORTRAIT_TAG);
-        initialize(new string[] {
-            "What is your name? and who is there?",
-            "Who are you?",
-            "Why are you here?"
-        },"xenon");
-        speaking();
+
     }
 
     // Update is called once per frame
@@ -39,11 +40,12 @@ public class DialogBoxController : MonoBehaviour
         
     }
 
-    public void initialize(string[] dialogString,string characterName)
+    public void initialize(string[] dialogString,string characterName, Action dialogComplete)
     {
         this.dialogString = dialogString;
         portraitImage.sprite = Resources.Load<Sprite>(DialogGlobals.CHARACTER_PORTRAIT_PATH + characterName);
         portraitImage.preserveAspect = true;
+        this.dialogComplete = dialogComplete;
     }
 
     //Called from editor click event
@@ -88,9 +90,16 @@ public class DialogBoxController : MonoBehaviour
         }
     }
 
-    public void destroyObj()
+    private void destroyObj()
     {
         Destroy(gameObject);
+    }
+
+    //called from end of animation event
+    public void onDialogComplete()
+    {
+        dialogComplete?.Invoke();
+        destroyObj();
     }
 
     private IEnumerator speakAll()
