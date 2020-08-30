@@ -6,7 +6,7 @@ using System;
 public class TestScript : MonoBehaviour
 {
     private int occurenceIndex = 0;
-    private DialogBox[] occurences;
+    private Occurrence[] occurences;
     private Action onOccurenceComplete;
     // Start is called before the first frame update
     void Start()
@@ -18,7 +18,7 @@ public class TestScript : MonoBehaviour
             occurenceComplete();
         };
 
-        occurences = new DialogBox[] {
+        occurences = new Occurrence[] {
             new DialogBox(new string[] {
                     "What is your name? and who is there?",
                     "Who are you?",
@@ -37,7 +37,7 @@ public class TestScript : MonoBehaviour
                 },CharacterNames.CE177,canvas,dialogBoxPrefab
             )
         };
-        occurences[occurenceIndex].playDialog(onOccurenceComplete);
+        occurences[occurenceIndex].execute(onOccurenceComplete);
     }
 
     private void occurenceComplete()
@@ -45,7 +45,7 @@ public class TestScript : MonoBehaviour
         occurenceIndex += 1;
         if (occurenceIndex < occurences.Length)
         {
-            occurences[occurenceIndex].playDialog(onOccurenceComplete);
+            occurences[occurenceIndex].execute(onOccurenceComplete);
         } else
         {
             //invoke on scene finished

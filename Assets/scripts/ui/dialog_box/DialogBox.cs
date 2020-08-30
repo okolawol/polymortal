@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class DialogBox
+public class DialogBox : Occurrence
 {
     private string[] dialogString;
     private string characterName;
@@ -17,7 +17,7 @@ public class DialogBox
         dialogBoxPrefab = prefab;
     }
 
-    public void playDialog(Action onComplete)
+    private void playDialog(Action onComplete)
     {
         try
         {
@@ -32,5 +32,10 @@ public class DialogBox
             Debug.LogError(e);
         }
 
+    }
+
+    public override void execute(Action onOccurrenceComplete)
+    {
+        playDialog(onOccurrenceComplete);
     }
 }
