@@ -2,6 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum DirectionFace
+{
+    Up,
+    UpLeft,
+    UpRight,
+    Down,
+    DownLeft,
+    DownRight,
+    Left,
+    Right
+}
+
 public class Moveable : MonoBehaviour
 {
 
@@ -9,6 +21,7 @@ public class Moveable : MonoBehaviour
     private float timeToDestination = 0.3f;
     private Vector3 targetPosition = new Vector3();
     private Vector3 velocity = Vector3.zero;
+    private DirectionFace lastKnownDirection = DirectionFace.DownLeft;
 
     protected virtual void Awake()
     {
@@ -27,6 +40,42 @@ public class Moveable : MonoBehaviour
         moveSpeed = newSpeed;
     }
 
+    private void processLastKnownDirection()
+    {
+        if (!Helpers.vector3Approximately(targetPosition, transform.position))
+        {
+            float deltaX = targetPosition.x - transform.position.x;
+            float deltaY = targetPosition.y - transform.position.y;
+            //if delta x or y is less than a threshold change to zero
+            //if both x and y are changed or not significant movement. use the last known
+            //direction
+            if (deltaX > 0 && deltaY > 0)
+            {
+                lastKnownDirection = DirectionFace.UpRight;
+            } else if(deltaX < 0 && deltaY > 0){
+                lastKnownDirection = DirectionFace.UpLeft;
+            } else if (deltaX > 0 && deltaY < 0)
+            {
+                lastKnownDirection = DirectionFace.DownRight;
+            } else if (deltaX < 0 && deltaY < 0)
+            {
+                lastKnownDirection = DirectionFace.DownLeft;
+            } else if (deltaX > 0)
+            {
+                lastKnownDirection = DirectionFace.Right;
+            } else if (deltaX < 0)
+            {
+                lastKnownDirection = DirectionFace.Left;
+            } else if (deltaY > 0)
+            {
+                lastKnownDirection = DirectionFace.Up;
+            } else if (deltaY < 0)
+            {
+                lastKnownDirection = DirectionFace.Down;
+            }
+        }
+    }
+
     // Start is called before the first frame update
     protected virtual void Start()
     {
@@ -37,5 +86,7 @@ public class Moveable : MonoBehaviour
     protected virtual void Update()
     {
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, timeToDestination, moveSpeed);
+        processLastKnownDirection();
+        Debug.Log(lastKnownDirection);
     }
 }
