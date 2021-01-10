@@ -22,6 +22,8 @@ public class Moveable : MonoBehaviour
     private Vector3 targetPosition = new Vector3();
     private Vector3 velocity = Vector3.zero;
     private DirectionFace lastKnownDirection = DirectionFace.DownLeft;
+    private float deltaThreshold = 0.2f;
+    private float closenessBuffer = 0.4f;
 
     protected virtual void Awake()
     {
@@ -30,9 +32,14 @@ public class Moveable : MonoBehaviour
 
     public void setTargetPosition(Vector3 newTargetPosition)
     {
-        targetPosition.x = newTargetPosition.x;
-        targetPosition.y = newTargetPosition.y;
-        targetPosition.z = newTargetPosition.z;
+        if (!targetIsTooClose(newTargetPosition))
+        {
+            targetPosition.x = newTargetPosition.x;
+            targetPosition.y = newTargetPosition.y;
+            targetPosition.z = newTargetPosition.z;
+
+            processLastKnownDirection();
+        }
     }
 
     public void setMoveSpeed(float newSpeed)
@@ -40,39 +47,61 @@ public class Moveable : MonoBehaviour
         moveSpeed = newSpeed;
     }
 
+    public void setClosenessBuffer(float newValue)
+    {
+        closenessBuffer = newValue;
+    }
+
+    private bool targetIsTooClose(Vector3 target)
+    {
+        return Vector3.Distance(target, transform.position) < deltaThreshold + closenessBuffer;
+    }
+
     private void processLastKnownDirection()
     {
-        if (!Helpers.vector3Approximately(targetPosition, transform.position))
+            
+        float softThreshold = deltaThreshold;
+        float deltaX = targetPosition.x - transform.position.x;
+        float deltaY = targetPosition.y - transform.position.y;
+            
+        if (Mathf.Abs(deltaX) < softThreshold) { deltaX = 0; }
+        if (Mathf.Abs(deltaY) < softThreshold) { deltaY = 0; }
+
+        if (deltaX != 0 || deltaY != 0)
         {
-            float deltaX = targetPosition.x - transform.position.x;
-            float deltaY = targetPosition.y - transform.position.y;
-            //if delta x or y is less than a threshold change to zero
-            //if both x and y are changed or not significant movement. use the last known
-            //direction
             if (deltaX > 0 && deltaY > 0)
             {
                 lastKnownDirection = DirectionFace.UpRight;
-            } else if(deltaX < 0 && deltaY > 0){
+            }
+            else if (deltaX < 0 && deltaY > 0)
+            {
                 lastKnownDirection = DirectionFace.UpLeft;
-            } else if (deltaX > 0 && deltaY < 0)
+            }
+            else if (deltaX > 0 && deltaY < 0)
             {
                 lastKnownDirection = DirectionFace.DownRight;
-            } else if (deltaX < 0 && deltaY < 0)
+            }
+            else if (deltaX < 0 && deltaY < 0)
             {
                 lastKnownDirection = DirectionFace.DownLeft;
-            } else if (deltaX > 0)
+            }
+            else if (deltaX > 0)
             {
                 lastKnownDirection = DirectionFace.Right;
-            } else if (deltaX < 0)
+            }
+            else if (deltaX < 0)
             {
                 lastKnownDirection = DirectionFace.Left;
-            } else if (deltaY > 0)
+            }
+            else if (deltaY > 0)
             {
                 lastKnownDirection = DirectionFace.Up;
-            } else if (deltaY < 0)
+            }
+            else if (deltaY < 0)
             {
                 lastKnownDirection = DirectionFace.Down;
             }
+
         }
     }
 
@@ -86,7 +115,5 @@ public class Moveable : MonoBehaviour
     protected virtual void Update()
     {
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, timeToDestination, moveSpeed);
-        processLastKnownDirection();
-        Debug.Log(lastKnownDirection);
     }
 }
