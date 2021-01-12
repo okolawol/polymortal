@@ -2,18 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum DirectionFace
-{
-    Up,
-    UpLeft,
-    UpRight,
-    Down,
-    DownLeft,
-    DownRight,
-    Left,
-    Right
-}
-
 public class Moveable : MonoBehaviour
 {
 
@@ -21,7 +9,7 @@ public class Moveable : MonoBehaviour
     private float timeToDestination = 0.3f;
     private Vector3 targetPosition = new Vector3();
     private Vector3 velocity = Vector3.zero;
-    private DirectionFace lastKnownDirection = DirectionFace.DownLeft;
+    protected DirectionFace lastKnownDirection = DirectionFace.DownLeft;
     private float deltaThreshold = 0.2f;
     private float closenessBuffer = 0.4f;
 
